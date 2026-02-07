@@ -1,234 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Will you be my Valentine?</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <style>
-body{
-  margin:0;
-  background:linear-gradient(to bottom,#ffe6f0,#ffd6ec);
-  font-family:system-ui,sans-serif;
-  text-align:center;
-  overflow-x:hidden;
+:root{
+  --bg1:#ffd6e7;
+  --bg2:#ffeef6;
+  --yes:#ff3b7a;
+  --yesHover:#ff1f68;
 }
 
-/* Floating hearts background */
-#floatingHearts{
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:radial-gradient(circle at top,var(--bg2),var(--bg1));
+  font-family:system-ui,sans-serif;
+  overflow-x:hidden;
+  padding:40px 16px;
+}
+
+/* floating hearts */
+.floating-hearts{
   position:fixed;
   inset:0;
   pointer-events:none;
   z-index:0;
+  overflow:hidden;
 }
 
 .heart{
   position:absolute;
-  font-size:20px;
-  animation:floatUp 10s linear infinite;
-  opacity:.6;
+  animation:float 10s infinite ease-in-out;
+  opacity:.3;
 }
 
-@keyframes floatUp{
-  from{transform:translateY(100vh);}
-  to{transform:translateY(-10vh);}
+@keyframes float{
+  0%{transform:translateY(100vh);opacity:0}
+  20%{opacity:.3}
+  80%{opacity:.3}
+  100%{transform:translateY(-100px);opacity:0}
 }
 
-.container{
+/* card */
+.card{
+  width:min(720px,92vw);
+  padding:26px;
+  background:#ffffffcc;
+  backdrop-filter:blur(10px);
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 18px 60px rgba(0,0,0,.15);
   position:relative;
-  z-index:1;
-  padding:40px 20px 80px;
+  z-index:2;
 }
 
-h1{
-  font-size:32px;
-  margin-top:20px;
-}
-
+/* bear */
 .art{
   width:260px;
-  margin:20px auto;
-  transition:.5s;
+  margin:0 auto 10px;
+  display:block;
+  transition:transform .5s ease;
 }
 
-.hug{
-  transform:scale(1.1) rotate(-5deg);
+.art.hug{
+  transform:scale(1.2) rotate(-5deg);
 }
 
-/* Buttons */
+/* title */
+h1{
+  font-size:clamp(26px,4vw,44px);
+  margin:12px 0 18px;
+  background:linear-gradient(45deg,#ff3b7a,#ff1f68);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* buttons */
 .button-zone{
   position:relative;
-  height:180px;
-  margin-top:30px;
+  width:100%;
+  height:150px;
 }
 
 button{
   position:absolute;
-  padding:14px 24px;
+  top:50%;
+  transform:translateY(-50%);
+  padding:16px 24px;
   font-size:18px;
-  font-weight:bold;
+  font-weight:800;
+  border-radius:999px;
   border:none;
-  border-radius:50px;
   cursor:pointer;
   transition:.2s;
 }
 
 #yesBtn{
-  left:25%;
-  top:50%;
-  transform:translateY(-50%);
-  background:#ff3b7a;
+  left:20%;
+  background:var(--yes);
   color:white;
+}
+
+#yesBtn:hover{
+  background:var(--yesHover);
 }
 
 #noBtn{
   left:60%;
-  top:50%;
-  transform:translateY(-50%);
   background:#e5e7eb;
+}
+
+.hint{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.7;
 }
 
 .result{
   display:none;
-  margin-top:40px;
-}
-
-.fireworks{
-  width:220px;
   margin-top:20px;
 }
 
-canvas{
+.love-message{
+  display:none;
+  margin-top:20px;
+  font-size:16px;
+}
+
+.footer{
+  margin-top:30px;
+  opacity:.6;
+}
+
+/* confetti canvas */
+#confettiCanvas{
   position:fixed;
   inset:0;
   pointer-events:none;
+  z-index:1;
 }
 </style>
 </head>
 
 <body>
 
-<div id="floatingHearts"></div>
+<div class="floating-hearts" id="floatingHearts"></div>
 <canvas id="confettiCanvas"></canvas>
 
-<div class="container">
+<main class="card">
 
-<!-- BEAR SVG -->
-<svg id="bear" class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="fur" x1="0" x2="1">
-<stop offset="0" stop-color="#f7c7a1"/>
-<stop offset="1" stop-color="#f2a97b"/>
-</linearGradient>
-<linearGradient id="heartGrad" x1="0" x2="1">
-<stop offset="0" stop-color="#ff4d7d"/>
-<stop offset="1" stop-color="#ff1f68"/>
-</linearGradient>
-</defs>
-
-<path id="mainHeart" d="M250 50 C250 33 270 25 282 38
-C294 25 314 33 314 50
-C314 78 282 92 282 106
-C282 92 250 78 250 50Z"
-fill="url(#heartGrad)"/>
-
-<path d="M90 120 C90 70 140 40 190 60
-C240 40 290 70 290 120
-C290 180 240 210 190 210
-C140 210 90 180 90 120Z"
-fill="url(#fur)"/>
-
-<path d="M110 92 L95 55 L140 78 Z" fill="#f2a97b"/>
-<path d="M270 92 L285 55 L240 78 Z" fill="#f2a97b"/>
-
-<circle cx="160" cy="130" r="8"/>
-<circle cx="220" cy="130" r="8"/>
-
-<path d="M190 144 C186 144 182 148 182 152
-C182 160 190 164 190 170
-C190 164 198 160 198 152
-C198 148 194 144 190 144Z"
-fill="#ff7aa2"/>
+<svg class="art" id="bear" viewBox="0 0 320 240">
+<circle cx="160" cy="120" r="70" fill="#f2a97b"/>
+<circle cx="120" cy="90" r="20" fill="#f2a97b"/>
+<circle cx="200" cy="90" r="20" fill="#f2a97b"/>
+<circle cx="140" cy="120" r="8"/>
+<circle cx="180" cy="120" r="8"/>
+<path d="M150 145 Q160 155 170 145" stroke="#ff4d7d" stroke-width="4" fill="none"/>
 </svg>
 
-<h1>Eman will you be my valentine? 💖</h1>
+<h1>Eman will you be my valentine?</h1>
 
-<div class="button-zone" id="zone">
+<section class="button-zone" id="zone">
 <button id="yesBtn">Yes</button>
 <button id="noBtn">No</button>
-</div>
+</section>
 
-<div class="result" id="result">
-<h2>YAYYY I LOVE YOU 💕</h2>
-<img class="fireworks"
-src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif">
-</div>
+<div class="hint" id="hint">"No" seems shy 😈</div>
 
+<section class="result" id="result">
+<h2>YAY! 🎉</h2>
+<img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" width="300">
+<div class="love-message" id="loveMessage">
+<p>💕 You just made my day! 💕</p>
+<p>I promise to always be there for you.</p>
 </div>
+</section>
+
+</main>
+
+<div class="footer">Made with ❤️</div>
 
 <script>
-/* Floating hearts */
-const container=document.getElementById("floatingHearts");
-const hearts=['💕','💖','💗','💝','💓','💞'];
-for(let i=0;i<20;i++){
-const heart=document.createElement("div");
-heart.className="heart";
-heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
-heart.style.left=Math.random()*100+"%";
-heart.style.animationDuration=(Math.random()*5+8)+"s";
-container.appendChild(heart);
-}
-
-/* Confetti */
-let confettiInstance=null;
-const canvas=document.getElementById("confettiCanvas");
-if(typeof confetti!=="undefined"){
-confettiInstance=confetti.create(canvas,{resize:true});
-}
-function launchConfetti(){
-if(!confettiInstance)return;
-confettiInstance({particleCount:300,spread:120,origin:{y:0.6}});
-}
-
-/* Buttons */
+const zone=document.getElementById("zone");
 const yesBtn=document.getElementById("yesBtn");
 const noBtn=document.getElementById("noBtn");
-const zone=document.getElementById("zone");
 const result=document.getElementById("result");
+const loveMessage=document.getElementById("loveMessage");
 const bear=document.getElementById("bear");
-const heart=document.getElementById("mainHeart");
 
+function createHearts(){
+const container=document.getElementById("floatingHearts");
+const hearts=["💖","💕","💗","💝"];
+for(let i=0;i<15;i++){
+let h=document.createElement("div");
+h.className="heart";
+h.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+h.style.left=Math.random()*100+"%";
+h.style.fontSize=(Math.random()*20+15)+"px";
+h.style.animationDelay=Math.random()*10+"s";
+container.appendChild(h);
+}
+}
+createHearts();
+
+/* yes grows */
 let scale=1;
 function growYes(){
-scale+=0.1;
+scale=Math.min(2,scale+.1);
 yesBtn.style.transform=`translateY(-50%) scale(${scale})`;
 }
 
-noBtn.addEventListener("mouseover",()=>{
-const x=Math.random()*(zone.clientWidth-noBtn.clientWidth);
-const y=Math.random()*(zone.clientHeight-noBtn.clientHeight);
-noBtn.style.left=x+"px";
-noBtn.style.top=y+"px";
-noBtn.style.transform="none";
+/* no runs */
+zone.addEventListener("pointermove",e=>{
+const rect=noBtn.getBoundingClientRect();
+const dist=Math.hypot(rect.x-e.clientX,rect.y-e.clientY);
+if(dist<120){
+noBtn.style.left=Math.random()*60+"%";
 growYes();
+}
 });
 
-yesBtn.addEventListener("click",()=>{
+/* yes click */
+yesBtn.onclick=()=>{
 zone.style.display="none";
+document.getElementById("hint").style.display="none";
 result.style.display="block";
+loveMessage.style.display="block";
 bear.classList.add("hug");
-heart.setAttribute("transform","translate(-70,40) scale(1.3)");
-launchConfetti();
+
+confetti({
+particleCount:200,
+spread:120,
+origin:{y:0.6}
 });
+};
 </script>
 
 </body>
 </html>
-
-
-
-
-
 
